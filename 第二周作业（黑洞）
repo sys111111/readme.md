@@ -1,1 +1,31 @@
+let blackHoleShader
+let bg
 
+function preload() {
+	bg = loadImage('crab-nebula.jpg')
+}
+
+function setup() {
+  createCanvas(900, 834, WEBGL)
+	blackHoleShader = createShader(vert, frag)
+}
+
+function windowResized() {
+	resizeCanvas(width, height)
+}
+
+function draw() {
+  background(0)
+  
+  rectMode(CENTER)
+  imageMode(CENTER)
+  noStroke()
+  push()
+  shader(blackHoleShader)
+  blackHoleShader.setUniform('time', millis() / 100);
+	blackHoleShader.setUniform('bg', bg);
+	blackHoleShader.setUniform('aspect', width / height);
+  rect(0, 0, width, height)
+  pop()
+  saveFrames('rect','png',1,5);
+}
