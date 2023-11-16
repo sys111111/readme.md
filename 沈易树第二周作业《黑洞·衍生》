@@ -64,10 +64,6 @@ const frag = `precision mediump float;
 	}
 
 	vec4 sampleBackground(vec3 normal, sampler2D bg) {
-		// x = rho sin(phi) cos(theta)
-		// y = rho cos(phi)
-		// z = rho sin(phi) sin(theta)
-		// rho = 1 after normalization
 		float phi = acos(normal.y);
 		float sinPhi = sin(phi);
 		float theta =
@@ -91,13 +87,10 @@ const frag = `precision mediump float;
     return mix(rand(fl), rand(fl + 1.0), fc);
   }
 	
-	// An attempt at an accretion disc, but not used because it turns out
-	// it's going to take more than my distortion approximation, which is
-	// based entirely on a normal
 	float distToDisc(vec3 angle) {
 		float dist = length(vec2(angle.x, angle.y * 10.));
 		return (1. - smoothstep(0.3, 0.48, dist)) * map(noise(dist * 40.), 0., 1., 0.8, 1.);
-		// * smoothstep(0.3, 0.32, dist);
+
 	}
 
 	void main() {
@@ -136,8 +129,6 @@ const frag = `precision mediump float;
 			color = (sampleBackground(distortedAngle, bg).xyz + 1.*pow(distortion, 20.));
 			color += pow(clamp(map(dotToBlackHole, 0.92, 0.96, 0., 1.), 0., 1.), 5.);
 			
-			// Uncomment to try out my broken accretion disc
-			// color += distToDisc(distortedAngle);
 		} else {
 			color += pow(map(dotToBlackHole, 0.96, 1., 1., 0.), 8.);
 		}
