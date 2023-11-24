@@ -5,7 +5,6 @@ var startingProbColors;
 var probColors; 
 var probReducingColors;
 var colorPalette;
-
 var probFactor;
 
 function setup() {
