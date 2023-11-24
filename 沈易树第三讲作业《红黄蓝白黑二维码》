@@ -1,0 +1,73 @@
+var thickness = 0; 
+var colors; 
+var nbColors; 
+var startingProbColors; 
+var probColors; 
+var probReducingColors;
+var colorPalette;
+
+var probFactor;
+
+function setup() {
+	let size = 600;
+	createCanvas(size, size);
+	noLoop();
+	
+	colors = [[19,22,14], [245,245,245], [69,106,187], [233,206,49], [216,64,40]];
+	nbColors = colors.length;
+	startingProbColors = [0.01, 0.81, 0.06, 0.06, 0.06];
+	probColors = startingProbColors.slice();
+	probReducingColors = [0.8, 0.1, 0.5, 0.5, 0.5];
+	
+	noStroke();
+}
+
+function draw() {
+	background(random(colors));
+	for (let i = 0; i < 5; i++) {
+		probFactor = 0.21*i;
+		mondrianRecursion(width - thickness, height - thickness, thickness/2, thickness/2, 2.0, (random(2)<1));
+	}
+}
+   
+function mondrianRecursion(w, h, x, y, prob, vertical) {
+  if (random(1) < prob) { 
+    mondrianRecursion(w/2, h/2, x, y, prob*probFactor, false);
+    mondrianRecursion(w/2, h/2, x + w/2, y, prob*probFactor, false);
+    mondrianRecursion(w/2, h/2, x + w/2, y + h/2, prob*probFactor, true);
+    mondrianRecursion(w/2, h/2, x, y + h/2, prob*probFactor, true);
+  } else { 
+    var idx = chooseColor();
+    newProbColors(idx);
+		fill(colors[idx][0], colors[idx][1], colors[idx][2]);
+		if (w > 5 && h > 5 && random() < 0.8)
+    	rect(x + thickness/2, y + thickness/2, max(w - thickness, 0), max(h - thickness, 0), 0);
+  }
+}
+
+function chooseColor() {
+  var r = random(1), sum = 0;
+  var i = 0;
+  while (sum <= r) {
+    sum += probColors[i++];
+  }  
+  return i - 1;
+}
+
+function newProbColors(i) {
+  var x = probColors[i] * probReducingColors[i];
+  for (var k = 0; k < nbColors; k++) {
+    if (i === k) {
+      probColors[k] = probColors[k] - x; 
+    } else {
+      probColors[k] = probColors[k] + x / (nbColors-1); 
+    }
+  }
+}
+
+function keyPressed() {
+	if (key === " ") { 
+		draw();
+    saveFrames();
+	}	
+}
