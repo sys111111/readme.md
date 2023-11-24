@@ -1,0 +1,24 @@
+var colors = ["#ff0000","#0040ff","#faeb00","#FFFFFF"]
+function setup() {
+	createCanvas(windowWidth, windowHeight);
+	background(0);
+}
+
+function draw() {
+	noStroke()
+	translate(0,height/2)
+	colorMode(HSB)
+	
+	for(var i=0;i<15;i++){
+	var clr = colors[i%colors.length]
+	fill(clr)
+	
+	rect(0,0,50,50)
+		rect(random(200),random(-height/2,height/2),random(30),random(60))
+		stroke(0);
+		strokeWeight(2);
+		translate(60,0)
+		rotate(map(mouseY,0,height,-0.2,0.2))
+	}
+
+}
