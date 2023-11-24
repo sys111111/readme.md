@@ -20,5 +20,5 @@ function draw() {
 		translate(60,0)
 		rotate(map(mouseY,0,height,-0.2,0.2))
 	}
-
+saveFrames("screen","png",1,1);
 }
