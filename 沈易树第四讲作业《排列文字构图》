@@ -1,0 +1,152 @@
+p5.disableFriendlyErrors = true;
+
+let img, canvas, font;
+let hu = 0;
+// let MAG = 4.5;
+let MAG = 1;
+
+function preload(){
+  img = loadImage("OIP-C.jpg");
+  font = loadFont("BethEllen-Regular.ttf");
+  //img = loadImage("Frankenstein.jpg");
+  //img = loadImage("rbg2.jpg");
+}
+
+function setup() {
+  
+  img.resize(0,windowHeight*MAG);
+  // img.filter(POSTERIZE,4);
+
+  canvas = createCanvas(img.width,img.height);
+  colorMode(HSB, 255)
+  background(255);
+  // image(img,0,0)
+  
+  noStroke()
+  hu = random(255);
+  fill(hu, 255, 130)
+  
+  SPACE = textWidth(" ");
+  textFont(font);
+  textAlign(LEFT, BASELINE);
+
+  frameRate(1);
+
+}
+
+
+let PASS = [200,180,140,80,50,20];
+
+let SPACE = 0;
+let JIGGLE = Math.PI/100;
+
+let MIN_FONT_SIZE = 3;
+let MAX_FONT_SIZE = 12;
+
+let MIN_ROW_SPACE = MIN_FONT_SIZE;
+let MAX_ROW_SPACE = MAX_FONT_SIZE;
+
+let MIN_DARK_RANGE = 0;
+let MAX_DARK_RANGE = 200;
+
+let STG="";
+let x,y,p,s;
+
+function draw(){
+  if(!Portrait1(PASS)){
+    console.log("-----------DONE-----------")
+    noLoop();
+  }
+}
+
+// save jpg
+let lapse = 0;    // mouse timer
+function mousePressed(){
+  if (millis() - lapse > 400){
+    save("img_" + month() + '-' + day() + '_' + hour() + '-' + minute() + '-' + second() + ".jpg");
+    lapse = millis();
+  } 
+}
+
+
+function pixel(x,y){
+  return img.get(x,y)[0];
+}
+
+function row(pass){
+  return map(pass,MAX_DARK_RANGE,MIN_DARK_RANGE, MAX_ROW_SPACE,MIN_ROW_SPACE,true) * random(0.6,1.4);
+}
+
+
+
+
+function Portrait1(passArray){
+
+  if(!passArray.length) return false;
+  
+  let pass = passArray.shift();
+
+  let STK="";
+  
+  textSize(map(pass,MIN_DARK_RANGE,MAX_DARK_RANGE, MAX_FONT_SIZE,MIN_FONT_SIZE, true))
+
+  let x=0,p;
+  for(let y=20;y<=img.height;y+=row(pass)){
+    x=0
+    for(;x<img.width;){
+      p = pixel(x,y);
+      if( p < pass){
+        push();
+        STK = Speech.next();
+        rotate(random(JIGGLE))
+        // console.log("|"+STK+"|")
+        x = write(STK,x,y,pass);
+        pop();
+      }else{
+        x+=3;
+      }
+    }
+  }
+
+  return true;
+}
+
+function write(STG,x,y,pass){
+  let T = textSize();
+  push();
+  while( pixel(x, y) > pass){
+    textSize( T > MIN_FONT_SIZE ? T-1 : MIN_FONT_SIZE );
+    x = x + textWidth(STG) - 10;
+  }
+  text(STG,x,y);
+  pop();
+  return x + textWidth(STG) + SPACE;
+}
+
+let TEXT = {
+  'lincoln':"Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal." + 
+          "\nNow we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this." + 
+          "\nBut, in a larger sense, we can not dedicate we can not consecrate we can not hallow this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly advanced. It is rather for us to be here dedicated to the great task remaining before us that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion that we here highly resolve that these dead shall not have died in vain that this nation, under God, shall have a new birth of freedom and that government of the people, by the people, for the people, shall not perish from the earth.",  
+}
+
+
+
+window.Speech = {
+  words:[],
+  setup:function(){
+    this.words = this.raw.toString().split(/\s+|\n+/gi);
+  },
+  index:-1,
+  get:function(index){
+    return this.words[ this.index ]
+  },
+  next:function(){
+    let i = this.index++;
+    if(i >= this.words.length){
+      this.index = 0;
+    }
+    return this.words[ this.index ]
+  }
+}
+
+Speech.setup();
