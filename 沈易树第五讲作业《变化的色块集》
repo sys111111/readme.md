@@ -1,0 +1,312 @@
+//通过构建不同的立方体单位排列，构造出丰富的立体几何形态，同时，经过键盘 “a” 的点击交互，给予3D造型不同的形态变化，用简洁的单位型构造出立体的整体
+
+let octree;
+let cubes = [];
+let w_ = 800;
+let h_ = 800;
+const fr = 15;
+let colors;
+let mm_0 = ['#FFD400', '#ff9900', '#ff0000', '#cccccc']; 
+let mm_1 = ['#FFD400', '#ff9900', '#ff0000'];  
+let mm_2 = ['#0066ff', '#FFD400', '#ff9900', '#4db8ff'];  
+let mm_3 = ['#0066ff', '#FFD400', '#ff9900', '#009999'];  
+let mm_4 = ['#0066ff', '#FFD400', '#ff9900', '#009999', '#ff0000'];  
+let mm_5 = ['#FFD400', '#ff9900', '#4db8ff']; 
+let mm_num;
+
+document.oncontextmenu = () => false;
+let easycam; 		
+let camState = {
+			distance: 2000,
+			center  : [w_/2, w_/2, w_/2],
+			rotation: [0.36, 0.15, 0.38, -0.90]
+		} 
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function setup() {
+  createCanvas(w_, h_, WEBGL);
+	easycam = createEasyCam();
+  easycam.setState(camState, 4000); 
+	frameRate(fr);
+	mm_num =getRandomInt(0,6);
+	switch(mm_num) {
+		case 0:
+			colors = mm_0;
+			break;
+		case 1:
+			colors = mm_1;
+			break;
+		case 2:
+			colors = mm_2;
+			break;
+		case 3:
+			colors = mm_3;
+			break;
+		case 4:
+			colors = mm_4;
+			break;
+		case 5:
+			colors = mm_5;
+			break;
+		case 6:
+			colors = mm_2;
+			break;
+		default:
+			colors = mm_2;
+	}
+	
+	let boundary = new Box(w_/2, w_/2, w_/2, w_/2, w_/2, w_/2);
+  octree = new Octree(boundary, 20);  
+  
+  for (let i = 0; i < 25000; i++) {
+    let x = random(-w_, w_);
+    let y = random(-w_, w_);
+    let z = random(-w_, w_);
+    let point_ = new Point(x, y, z);
+    octree.insert(point_);
+  }
+	octree.show();
+	}
+
+function draw() {
+  background("#f5f5ef");
+	for (var i = 0; i < cubes.length; i++) {
+		stroke(cubes[i].color);
+		fill('000000');
+		strokeWeight(10);
+		angleMode(DEGREES);
+
+		switch(mm_num) {
+			case 0:
+				if(cubes[i].visable>=5) {
+					push();
+						translate(cubes[i].x, cubes[i].y, cubes[i].z);
+						rotateX(cubes[i].sx);
+						rotateY(cubes[i].sy);
+						rotateZ(cubes[i].sz);
+						box(60,60,60);
+					pop();
+				}
+				break;
+			case 1:
+				if(cubes[i].visable>=20) {
+					if((cubes[i].x == cubes[i].y - 100)||(cubes[i].x == cubes[i].y)||(cubes[i].x == cubes[i].y + 100)) {
+						push();
+							translate(cubes[i].x, cubes[i].y, cubes[i].z);
+							rotateX(cubes[i].sx);
+							rotateY(cubes[i].sy);
+							rotateZ(cubes[i].sz);
+							box(80,80,80);
+						pop();
+					}
+				}
+				break;
+			case 2:
+				if(cubes[i].visable>=18) {
+					if(!((cubes[i].x>w_/2)&&(cubes[i].y>w_/2))) {
+						push();
+							translate(cubes[i].x, cubes[i].y, cubes[i].z);
+							box(100,100,100);
+						pop();
+					}
+				}
+				break;
+			case 3:
+			case 4:
+				if(cubes[i].visable>=27) {
+						push();
+							translate(cubes[i].x, cubes[i].y, cubes[i].z);
+							box(100,100,100);
+						pop();
+				}
+				break;
+			case 5:
+				if(cubes[i].visable>=20) {
+					if((cubes[i].x == cubes[i].y - 100)||(cubes[i].x == cubes[i].y)||(cubes[i].x == cubes[i].y + 100)) {
+						push();
+							translate(cubes[i].y, cubes[i].x, cubes[i].z);
+							box(100,100,100);
+						pop();
+					}
+				}
+				break;
+			case 6:
+				if(cubes[i].visable>=18) {
+					if( (!( ((cubes[i].x>w_/2)&&(cubes[i].y>w_/2)) || ((cubes[i].x<w_/5)&&(cubes[i].y<w_/5)) ) ) ) {
+						push();
+							translate(cubes[i].x, cubes[i].y, cubes[i].z);
+							box(100,100,100);
+						pop();
+					}
+				}
+				break;
+			default:
+				if(cubes[i].visable>=18) {
+					if(!((cubes[i].x>w_/2)&&(cubes[i].y>w_/2))) {
+						push();
+							translate(cubes[i].x, cubes[i].y, cubes[i].z);
+							box(100,100,100);
+						pop();
+					}
+				}
+		}		
+	}
+}
+
+function keyPressed(){
+if(keyCode == "a"){
+	mm_num =getRandomInt(0,6);
+ }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
