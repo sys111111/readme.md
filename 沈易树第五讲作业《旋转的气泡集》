@@ -1,0 +1,30 @@
+//通过构建不同的气泡单位排列，构造出丰富的立体几何形态，同时，经过鼠标的交互，给予3D造型不同的形态变化
+
+let f = 0;
+let w = 100;
+let d = 50;
+let W = 250;
+
+setup = _ => {
+	createCanvas(windowWidth, W = windowHeight, WEBGL);
+	w = windowHeight / 4;
+	d = w / 3;
+}
+
+draw = _ => {
+	background(222);
+	noStroke();
+	[2, 2, -2].map(i => spotLight(W, W, W, 0, -W * i, w, 0, i, 0));
+	rotateY(f += .009);
+	rotateZ(mouseX/100);
+	for (z = -w; z <= w; z += d) {
+		for (y = -w; y <= w; y += d) {
+			for (x = -w; x <= w; x += d) {
+				push();
+				translate(x^2*mouseY/500, y^(mouseY/1000), z*sin(mouseX/100));
+				sphere((sin(x / w + y / w + z + f * 2) / 16) * (windowHeight));
+				pop();
+			}
+		}
+	}
+}
