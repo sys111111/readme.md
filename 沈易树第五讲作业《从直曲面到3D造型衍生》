@@ -1,0 +1,154 @@
+//create 3D
+import peasy.*;
+import controlP5.*;
+import nervoussystem.obj.*;
+ControlP5 bar;
+PeasyCam cam;
+
+int section = 300;
+int Height = 200;
+int LeftCornerX = 10;
+int LeftCornerY = 20;
+int barSize = 200;
+int barHeight = 20;
+int barInterval = barHeight + 5;
+int shineValue = 2;
+int lightSpecularR = 220;
+int lightSpecularG = 220;
+int lightSpecularB = 220;
+int Min = 30;
+int Max = Min + 80;
+
+float x = 0;
+float y = 0;
+float a = 0.9;
+float b = 1;
+float s = 100;
+float A = 0;
+float B = 0;
+float C = 0;
+float phase1 = PI / 3;
+float phase2 = PI / 4;
+float phase3 = PI / 6;
+boolean record;
+String times;
+
+void setup() {
+  size(820, 940, P3D);
+  cam = new PeasyCam(this, 600);
+  UI();
+}
+
+void draw() {
+  background(200);
+  noStroke();
+  fill(0, 0, 0);
+  lightSpecular(lightSpecularR, lightSpecularG, lightSpecularB);
+  directionalLight(102, 102, 102, 0, 0, 1);
+  shininess(shineValue);
+  specular(255, 255, 255);
+  draw3D();
+
+  cam.beginHUD();
+  lights();
+  bar.draw();
+  cam.endHUD();
+
+  if (mouseX<340 && mouseY<460) {
+    cam.setActive(false);
+  } else {
+    cam.setActive(true);
+  }
+
+  if (record) {
+    times = year() + nf(month(), 2) + nf(day(), 2) + "-"  + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2);
+    beginRecord("nervoussystem.obj.OBJExport", "designWork/flower_"+times+".obj");
+  }
+
+  draw3D();
+
+}
+
+void CassiniOval() {
+  float t = TWO_PI / section;
+  beginShape();
+  for (int i = 0; i < section; i ++) {
+    float c = sqrt(a*a*cos(2*t*i+ phase1) + sqrt(b*b*b*b - a*a*sin(2*t*i+ phase2)*sin(2*t*i+ phase2)));
+    x = width/2 + cos(t*i)*c*s;
+    y = height/2 + sin(t*i)*c*s;
+
+    stroke(255);
+    strokeWeight(1);
+    curveVertex(x, y);//point(x, y);
+  }
+  endShape(CLOSE);
+}
+
+void keyPressed() {
+  if (key == 's') {
+    record = true;
+  }
+}
+
+void draw3D() {
+  float t = TWO_PI / section;
+  float p = 0;
+  float ang = TWO_PI / Height;
+  beginShape(TRIANGLES);
+  for (int k = Min; k < Max; k ++) {
+    for (int i = 0; i < section; i ++) {
+
+      float r11 = s * (1 +
+        A * sin(ang * k) * cos(2 * t * (i%section) + phase1 + p * 2 * k) +
+        B * sin(ang * k)*cos(3 * t * (i%section) + phase2 + p * 2 * k)+
+        C * sin(ang * k)*cos(5 * t * (i%section) + phase3 + p * 2 * k));
+      float r12 = s * (1 +
+        A * sin(ang * k) * cos(2 * t * ((i+1)%section) + phase1 + p * 2 * k) +
+        B * sin(ang * k) * cos(3 * t * ((i+1)%section) + phase2 + p * 2 * k)+
+        C * sin(ang * k) * cos(5 * t * ((i+1)%section) + phase3 + p * 2 * k));
+      float r21 = s * (1 +
+        A * sin(ang * (k+1)) * cos(2 * t * (i%section) + phase1 + p * 2 * (k+1)) +
+        B * sin(ang * (k+1)) * cos(3 * t * (i%section) + phase2 + p * 2 * (k+1))+
+        C * sin(ang * (k+1)) * cos(5 * t * (i%section) + phase3 + p * 2 * (k+1)));
+      float r22 = s * (1 +
+        A * sin(ang * (k+1)) * cos(2 * t * ((i+1)%section) + phase1 + p * 2 * (k+1)) +
+        B * sin(ang * (k+1)) * cos(3 * t * ((i+1)%section) + phase2 + p * 2 * (k+1))+
+        C * sin(ang * (k+1)) * cos(5 * t * ((i+1)%section) + phase3 + p * 2 * (k+1)));
+
+      strokeWeight(3);
+      stroke(23, 46, 119);
+      vertex(r11 * cos(t * (i%section)), r11 * sin(t * (i%section)), k*5);
+      vertex(r22 * cos(t * ((i+1)%section)), r22 * sin(t * ((i+1)%section)), (k+1)*5);
+      vertex(r21 * cos(t * (i%section)), r21 * sin(t * (i%section)), (k+1)*5);
+
+      strokeWeight(3);
+      stroke(239, 196, 206);
+      vertex(r11 * cos(t * (i%section)), r11 * sin(t * (i%section)), k*5);
+      vertex(r12 * cos(t * ((i+1)%section)), r12 * sin(t * ((i+1)%section)), k*5);
+      vertex(r22 * cos(t * ((i+1)%section)), r22 * sin(t * ((i+1)%section)), (k+1)*5);
+    }
+  }
+  endShape();
+}
+
+
+//UI
+void UI() {
+  bar = new ControlP5(this, createFont("微软雅黑", 14));
+
+  bar.addSlider("A", 0, 2, 0.3, LeftCornerX, LeftCornerY, barSize, barHeight).setLabel("二等分值");
+  bar.addSlider("B", 0, 1, 0.4, LeftCornerX, LeftCornerY + barInterval, barSize, barHeight).setLabel("三等分值");
+  bar.addSlider("C", 0, 1, 0.5, LeftCornerX, LeftCornerY + barInterval * 2, barSize, barHeight).setLabel("五等分值");
+
+  bar.addSlider("phase1", -PI, PI, 0, LeftCornerX, LeftCornerY + barInterval * 3, barSize, barHeight).setLabel("相位1");
+  bar.addSlider("phase2", -PI, PI, 0, LeftCornerX, LeftCornerY + barInterval * 4, barSize, barHeight).setLabel("相位2");
+  bar.addSlider("phase3", -PI, PI, 0, LeftCornerX, LeftCornerY + barInterval * 5, barSize, barHeight).setLabel("相位3");
+  
+  bar.addSlider("section", 5, 500, 100, LeftCornerX, LeftCornerY + barInterval * 7, barSize, barHeight).setLabel("细分系数");
+  bar.addSlider("Height", 10, 800, 100, LeftCornerX, LeftCornerY + barInterval * 8, barSize, barHeight).setLabel("高度分级");
+  
+  bar.addSlider("Min", 0, Height, 30, LeftCornerX, LeftCornerY + barInterval * 10, barSize, barHeight).setLabel("高度最小值");
+  bar.addSlider("Max", 0, Height, Height-30, LeftCornerX, LeftCornerY + barInterval * 11, barSize, barHeight).setLabel("高度最大值");
+
+  bar.setAutoDraw(false);
+}
