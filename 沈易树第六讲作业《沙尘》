@@ -1,0 +1,107 @@
+const colors = ["#F00", "#FF0", "#0F0", "#0FF", "#00F", "#000"]
+let bgColor, bloodColor
+const totalFrame = 1000
+const lifeStep = 0.005
+let [wOff, hOff] = [200, 200]
+let [cols, rows] = [150, 150]
+let xoff, yoff
+let nodes = Array.from({ length: rows }, () => Array.from({ length: cols }))
+let noiseScale = 0.01
+let weiRangeMax
+let maxSide
+
+function setup() {
+	createCanvas(1000, 360)
+	const tone = [255, 255, 255]
+	bgColor = color(...tone)
+	background(bgColor)
+	bloodColor = color(random(colors))
+	noFill()
+
+	noiseScale = random(0.005, 0.01)
+	weiRangeMax = 2 ** floor(random(3, 9))
+	maxSide = max(width, height)
+
+	cols = floor(random(1, 11)) * 10
+	xoff = (width - wOff) / cols
+	yoff = (height - hOff) / rows
+	for (let col = 0; col < cols; col++) {
+		for (let row = 0; row < rows; row++)
+			nodes[row][col] = new Node(col * xoff, row * yoff)
+	}
+	flex({ container: { padding: "20px" } })
+}
+
+let t
+let weiCtrl
+function draw() {
+	t = frameCount / totalFrame
+	weiCtrl = lerp(noise(t, t) * width, width / 2, t)
+
+	push()
+	translate((wOff + xoff) / 2, (hOff + yoff) / 2)
+	let dotColor = lerpColor(color(0), bloodColor, 0.5 - 0.5 * cos(2 * t))
+	dotColor.setAlpha(50)
+	stroke(dotColor)
+	nodeUpdate(static_dots)
+	nodeUpdate(motion_dots)
+	pop()
+
+	push()
+	stroke(bgColor)
+	strokeWeight(25)
+	rect(0, 0, width, height)
+	pop()
+
+	if (frameCount >= totalFrame) noLoop()
+}
+
+function motion_dots(node, dx, dy, wei) {
+	node.x = node.x + dx * wei
+	node.y = node.y + dy * wei
+	node.life = node.life-lifeStep
+	if (node.life < 0) node.reset()
+	point(node.x, node.y)
+}
+
+function static_dots(node, dx, dy, wei) {
+	node.mx = node.x + dx * wei * 100 * sin(t)
+	node.my = node.y + dy * wei * 210 * sin(t)
+	point(node.mx, node.my)
+}
+
+function nodeUpdate(display) {
+	let nz = frameCount * noiseScale
+	for (let col = 0; col < cols; col++) {
+		for (let row = 0; row < rows; row++) {
+			const node = nodes[row][col]
+			const nx = node.x * noiseScale
+			const ny = node.y * noiseScale
+			const dx = noise(nx + 300, ny + 500, nx + ny + nz) * 2 - 1
+			const dy = noise(nx + 100, ny + 300, nx + ny + nz) * 2 - 1
+			const range = floor(random(1, random(2, weiRangeMax)))
+			const wei = map(weiCtrl, 0, maxSide, -range, range) * (1 - t)
+			display(node, dx, dy * (1 - abs(wei) / range) * 30, wei)
+		}
+	}
+}
+
+class Node{
+constructer{
+		this.x = x
+		this.y = y
+		this.mx = x
+		this.my = y
+		this.life = random(3)
+	}
+
+ reset() {
+		this.x = this.mx
+		this.y = this.my
+		this.life = random(3)
+	}
+ }
+
+
+
+
