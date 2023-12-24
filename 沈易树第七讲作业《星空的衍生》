@@ -1,0 +1,97 @@
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+import ddf.minim.effects.*;
+import ddf.minim.signals.*;
+import ddf.minim.spi.*;
+import ddf.minim.ugens.*;
+Minim minim;
+AudioInput music;
+
+ArrayList<Ball>balls;
+PImage photo;
+float s =1.8;
+
+void setup() {
+  minim=new Minim(this);
+  music=minim.getLineIn();
+  size(1064, 800);
+  pixelDensity(1);
+  smooth();
+  noStroke();
+  photo=loadImage("111.jpg");//这里更换图片文件
+  photo.resize(photo.width, photo.height);
+  balls = new ArrayList<Ball>();
+}
+
+void draw() {
+
+  float level=music.mix.level();
+  for (int i=30; i<map(level, 0, 0.02, 1, 200); i+=2) {
+    int x =int(random(photo.width));
+    int y =int(random(photo.height));
+    color pix = photo.get(x, y);
+    int a = (int)random(0, 4);
+    if (a==0) {
+      balls.add(new Ball(0, 0, x, y, pix));
+    } else if (a==1) {
+      balls.add(new Ball(width, 0, x, y, pix));
+    } else if (a==2) {
+      balls.add(new Ball(width, height, x, y, pix));
+    } else {
+      balls.add(new Ball(0, height, x, y, pix));
+    }
+  }
+  background(255);
+  for (int i1=0; i1<=balls.size()-1; i1++) {
+    Ball ball=balls.get(i1);
+    ball.move();
+    ball.display();
+    //println(balls.size());
+    if (ball.finished()) {
+      balls.remove(i1);
+    }
+  }
+}
+void keyPressed() {
+  if (key == 's')
+    saveFrame("####.png");
+}
+
+
+
+//class
+class Ball {
+  float x;
+  float y;
+  float size=random(5, 15);
+  float Life =255;
+  color c;
+  float x0=0;
+  float y0=height/2;
+  Ball(float _x0, float _y0, float tempX, float tempY, color _c) {
+    x= tempX+width/2-photo.width/2;
+    y= tempY+height/2-photo.height/2;
+    c =_c;
+    x0=_x0;
+    y0=_y0;
+    println(Life);
+  }
+
+  void move() {
+    x0+=(x-x0)/50.0;
+    y0+=(y-y0)/50.0;
+  }
+
+  boolean finished() {
+    if (Life<0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void display() {
+    fill(c, Life);
+    ellipse(x0, y0-20, size-9.5, size-9.5);
+  }
+}
